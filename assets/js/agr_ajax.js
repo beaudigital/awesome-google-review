@@ -2,7 +2,10 @@ jQuery(document).ready(function ($) {
   $("#agr_ajax_form").submit(function () {
     var place_id = $("#place_id").val().replace(/\s/g, "");
     var nonce = $("#awesome_google_review_nonce").val();
-
+    var get_review_count = $("#get_review_count").find(":selected").val();
+    $(".correct-sign").removeClass("visible");
+    $(".wrong-sign").removeClass("visible");
+    $(".get_review_count").removeClass("wrong");
     if (place_id.trim() !== "" && !/\s/.test(place_id)) {
       // place_id = $("#place_id").val().replace(/\s/g, "");
       $.ajax({
@@ -12,20 +15,38 @@ jQuery(document).ready(function ($) {
         data: {
           action: "our_ajax_action",
           place_id: place_id,
-          nonce:nonce,
+          get_review_count: get_review_count,
+          nonce: nonce,
         },
         beforeSend: function () {
           $(".submit_btn .label").text("Loading...");
         },
-        success: function (response) {},
+        success: function (response) {
+        
+            $(".submit_btn .label").text("Submit");
+         
+        },
         complete: function (response) {
           var response = response.responseJSON;
           if (response.success === 1) {
             setTimeout(function () {
               // explodePage();
-              toastr.success("", response.msg);
-              $(".submit_btn .label").text("Submit");
               $("#place_id").val(response.data.place_id);
+
+              if (response.data.count == 1) {
+                if (response.data.api == 1) {
+                  $(".correct-sign").addClass("visible");
+                  toastr.success("", response.msg);
+                }
+                else{
+                  $(".wrong-sign").addClass("visible");                  
+                  toastr.error("", response.msg);
+                }
+              }
+              else{
+                $(".get_review_count").addClass("wrong");
+                toastr.error("", response.msg);
+              }
             }, 350);
           } else {
             setTimeout(function () {

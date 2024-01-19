@@ -73,26 +73,47 @@ function our_ajax_function()
     $response['success'] = 0;
     $response['data'] = array();
     $response['msg'][] = '';
-    $nonce = $_POST['nonce'];
+    $nonce = sanitize_text_field($_POST['nonce']);
+    $get_review_count = sanitize_text_field($_POST['get_review_count']);
+
+    $response['data']['api'] = 0;
     if (!empty($nonce) && wp_verify_nonce($nonce, 'awesome_google_review')) {
-        $place_id = $_POST['place_id'];
+        $place_id = sanitize_text_field($_POST['place_id']);
         if (isset($place_id)) {
             add_option('place_id', $place_id);
             if (get_option('place_id') !== false) {
                 update_option('place_id', $place_id);
             }
+            add_option('get_review_count', $get_review_count);
+            if (get_option('get_review_count') !== false) {
+                update_option('get_review_count', $get_review_count);
+            }
             $response['data']['place_id'] = get_option('place_id');
-            $response['msg'] = 'Reviews added...';
-            $response['success'] = 1;
-            $reviews_array = get_reviews_data($place_id);
-            if (!empty($reviews_array)) {
-                store_data_into_reviews($reviews_array);                
-            }            
+            $reviews_array = get_reviews_data($place_id, $get_review_count);
+
+            if ($get_review_count != 0) {
+                if (!empty($reviews_array)) {
+                    $response['data']['api'] = 1;
+                    $response['data']['count'] = 1;
+                    $response['success'] = 1;
+                    $response['msg'] = 'Reviews have been added..';
+                    store_data_into_reviews($reviews_array);
+                } else {
+                    $response['data']['api'] = 0;
+                    $response['data']['count'] = 1;
+                    $response['success'] = 1;
+                    $response['msg'] = 'Please set correct Place ID';
+                }
+            } else {
+                $response['data']['count'] = 0;
+                $response['success'] = 1;
+                $response['msg'] = 'Ensure the review count is above 0';
+            }
         } else {
-            $response['msg'] = 'Something went wrong !';           
+            $response['msg'] = 'An error occurred !';
         }
     } else {
-        $response['msg'] = 'Nonce is not valid, handle accordingly !';       
+        $response['msg'] = 'Handle the situation appropriately as the nonce is not valid !';
     }
 
     wp_send_json($response);
@@ -102,9 +123,12 @@ function our_ajax_function()
 add_action('wp_ajax_our_ajax_action', 'our_ajax_function');
 add_action('wp_ajax_nopriv_our_ajax_action', 'our_ajax_function');
 
-function get_reviews_data($place_id) {
-    // Replace 'YOUR_API_URL' with the actual API URL
-    $api_url = 'https://service-reviews-ultimate.elfsight.com/data/reviews?uris%5B%5D='.$place_id.'&with_text_only=1&min_rating=5&page_length=5&order=date';
+function get_reviews_data($place_id, $get_review_count)
+{
+    if ($get_review_count == 0) {
+        return;
+    }
+    $api_url = 'https://service-reviews-ultimate.elfsight.com/data/reviews?uris%5B%5D=' . $place_id . '&with_text_only=1&min_rating=5&page_length=' . $get_review_count . '&order=date';
 
     // Make the API request
     $response = wp_remote_get($api_url);
@@ -117,6 +141,7 @@ function get_reviews_data($place_id) {
     // Parse the JSON response
     $body = wp_remote_retrieve_body($response);
     $data = json_decode($body, true);
+
     // Check if the JSON decoding was successful
     if (is_array($data['result']['data'])) {
         return $data['result']['data'];
@@ -124,7 +149,8 @@ function get_reviews_data($place_id) {
 }
 
 
-function get_post_id_by_meta($meta_key, $meta_value, $post_type = 'agr_google_review') {
+function get_post_id_by_meta($meta_key, $meta_value, $post_type = 'agr_google_review')
+{
     $args = array(
         'post_type'  => $post_type,
         'meta_key'   => $meta_key,
@@ -141,7 +167,8 @@ function get_post_id_by_meta($meta_key, $meta_value, $post_type = 'agr_google_re
     return 0;
 }
 
-function store_data_into_reviews($reviews_array) {
+function store_data_into_reviews($reviews_array)
+{
     foreach ($reviews_array as $get_review) {
         $id = $get_review['id'];
         $reviewer_name = $get_review['reviewer_name'];
@@ -151,14 +178,11 @@ function store_data_into_reviews($reviews_array) {
         $text = $get_review['text'];
         $published_at = $get_review['published_at'];
 
-        // Check if the post with the given ID exists
-        // $existing_post_id = get_post_meta($id, 'post_review_id', true);
-
         // Check if the post with the given ID exists based on custom meta field
         $existing_post_id = get_post_id_by_meta('post_review_id', $id, 'agr_google_review');
 
         $post_data = array(
-            'post_title'    => $reviewer_name,       
+            'post_title'    => $reviewer_name,
             'post_type'     => 'agr_google_review',
             'post_status'   => 'publish',
             'orderby'        => 'date',
@@ -184,11 +208,8 @@ function store_data_into_reviews($reviews_array) {
             update_post_meta($new_post_id, 'text', $text);
             update_post_meta($new_post_id, 'publish_date', $published_at);
         }
-
     }
 
     return true;
 }
-
-
 
