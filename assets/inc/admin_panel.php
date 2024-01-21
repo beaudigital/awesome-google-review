@@ -126,20 +126,13 @@ function render_agr_google_review_meta_box($post)
 
     // Output a table
     echo '<table class="form-table" style="width:auto">';    
-    echo '<tr><th>' . __('Reviewer Name:', 'awesome-google-review') . '</th><td><input readonly type="text" id="reviewer_name" name="reviewer_name" value="' . esc_attr($reviewer_name) . '" /></td><td><strong>Meta Key</strong> : <span class="meta_key_cls">reviewer_name</span><span class="copy_text" onclick="copyTextToClipboard(this.previousElementSibling)"> copy</span></td></tr>';
-    echo '<tr><th>' . __('Reviewer Picture URL:', 'awesome-google-review') . '</th><td><input readonly type="text" id="reviewer_picture_url" name="reviewer_picture_url" value="' . esc_url($reviewer_picture_url) . '" /></td><td><strong>Meta Key</strong> : <span class="meta_key_cls">reviewer_picture_url</span><span class="copy_text" onclick="copyTextToClipboard(this.previousElementSibling)"> copy</span></td></tr>';
-    echo '<tr><th>' . __('Read More URL:', 'awesome-google-review') . '</th><td><input readonly type="text" id="url" name="url" value="' . esc_url($url) . '" /></td><td><strong>Meta Key</strong> : <span class="meta_key_cls">url</span><span class="copy_text" onclick="copyTextToClipboard(this.previousElementSibling)"> copy</span></td></tr>';
-    echo '<tr><th>' . __('Rating:', 'awesome-google-review') . '</th><td><input readonly type="number" id="rating" name="rating" value="' . esc_attr($rating) . '" /></td><td><strong>Meta Key</strong> : <span class="meta_key_cls">rating</span><span class="copy_text" onclick="copyTextToClipboard(this.previousElementSibling)"> copy</span></td></tr>';
-    echo '<tr><th>' . __('Description:', 'awesome-google-review') . '</th><td><textarea readonly id="text" name="text" rows="4" cols="23">' . esc_textarea($text) . '</textarea></td><td><strong>Meta Key</strong> : <span class="meta_key_cls">text</span><span class="copy_text" onclick="copyTextToClipboard(this.previousElementSibling)"> copy</span></td></tr>';
-    echo '<tr><th>' . __('Publish Date:', 'awesome-google-review') . '</th><td><input readonly type="text" id="publish_date" name="publish_date" value="' . esc_attr($publish_date) . '" /></td><td><strong>Meta Key</strong> : <span class="meta_key_cls">publish_date</span><span class="copy_text" onclick="copyTextToClipboard(this.previousElementSibling)"> copy</span></td></tr>';
+    echo '<tr><th>' . __('Reviewer Name:', 'awesome-google-review') . '</th><td><input readonly type="text" id="reviewer_name" name="reviewer_name" value="' . esc_attr($reviewer_name) . '" /></td></tr>';
+    echo '<tr><th>' . __('Reviewer Picture URL:', 'awesome-google-review') . '</th><td><input readonly type="text" id="reviewer_picture_url" name="reviewer_picture_url" value="' . esc_url($reviewer_picture_url) . '" /></td></tr>';
+    echo '<tr><th>' . __('Read More URL:', 'awesome-google-review') . '</th><td><input readonly type="text" id="url" name="url" value="' . esc_url($url) . '" /></td></tr>';
+    echo '<tr><th>' . __('Rating:', 'awesome-google-review') . '</th><td><input readonly type="number" id="rating" name="rating" value="' . esc_attr($rating) . '" /></td></tr>';
+    echo '<tr><th>' . __('Description:', 'awesome-google-review') . '</th><td><textarea readonly id="text" name="text" rows="4" cols="23">' . esc_textarea($text) . '</textarea></td></tr>';
+    echo '<tr><th>' . __('Publish Date:', 'awesome-google-review') . '</th><td><input readonly type="text" id="publish_date" name="publish_date" value="' . esc_attr($publish_date) . '" /></td></tr>';
     echo '</table>';
-
-    echo '<style>.copy_text{color:#2271b1;cursor:pointer;} .meta_key_cls{font-weight:700;}</style>';
-
-    echo '<script>
-    function copyTextToClipboard(e){const t=e.innerText;if(navigator.clipboard)return navigator.clipboard.writeText(t).then(()=>showNotification("Text copied to clipboard")).catch(()=>showNotification("Error copying text to clipboard"));if(copyTextToClipboardFallback(t))showNotification("Text copied to clipboard !");else showNotification("Error copying text to clipboard")}function copyTextToClipboardFallback(t){const e=document.createElement("textarea");e.value=t,document.body.appendChild(e),e.select(),document.execCommand("copy"),document.body.removeChild(e);return!0}function showNotification(e){alert(e)}
-    </script>';        
-            
 }
 
 function shortcode_display(){
@@ -169,6 +162,20 @@ function our_google_reviews_callback()
                             <option value="0" <?php selected(get_option('get_review_count'), '0'); ?>>0</option>
                             <option value="5" <?php selected(get_option('get_review_count'), '5'); ?>>5</option>
                             <option value="10" <?php selected(get_option('get_review_count'), '10'); ?>>10</option>
+                            <option value="20" <?php selected(get_option('get_review_count'), '20'); ?>>20</option>
+                            <option value="30" <?php selected(get_option('get_review_count'), '30'); ?>>30</option>
+                            <option value="40" <?php selected(get_option('get_review_count'), '40'); ?>>40</option>
+                            <option value="60" <?php selected(get_option('get_review_count'), '60'); ?>>60</option>
+                            <option value="80" <?php selected(get_option('get_review_count'), '80'); ?>>80</option>
+                            <option value="100" <?php selected(get_option('get_review_count'), '100'); ?>>100</option>
+                            <option value="120" <?php selected(get_option('get_review_count'), '120'); ?>>120</option>
+                            <option value="150" <?php selected(get_option('get_review_count'), '150'); ?>>150</option>
+                            <option value="180" <?php selected(get_option('get_review_count'), '180'); ?>>180</option>
+                            <option value="200" <?php selected(get_option('get_review_count'), '200'); ?>>200</option>
+                            <option value="250" <?php selected(get_option('get_review_count'), '250'); ?>>250</option>
+                            <option value="300" <?php selected(get_option('get_review_count'), '300'); ?>>300</option>
+                            <option value="400" <?php selected(get_option('get_review_count'), '400'); ?>>400</option>
+                            <option value="500" <?php selected(get_option('get_review_count'), '500'); ?>>500</option>
                         </select>
                     </div>
                 </div>
@@ -177,6 +184,7 @@ function our_google_reviews_callback()
             </form>
         </div>
     </div>
+    
 <?php
 }
 
@@ -227,13 +235,33 @@ function custom_display_custom_columns($column, $post_id)
         case 'publish_date':
             $publish_date = get_post_meta($post_id, 'publish_date', true);
             $formatted_date = date_i18n('d-M-Y', $publish_date);
-            echo '<div style="text-align: center;">' . esc_html($formatted_date) . '</div>';
+            echo '<div>' . esc_html($formatted_date) . '</div>';
             break;
     }
 }
 add_action('manage_agr_google_review_posts_custom_column', 'custom_display_custom_columns', 16, 2);
 
 
+// Make the Review Date column sortable
+function custom_sortable_columns($columns) {    
+    $columns['publish_date'] = 'publish_date'; // 'publish_date' is the ID of the column
+    return $columns;
+}
+add_filter('manage_edit-agr_google_review_sortable_columns', 'custom_sortable_columns');
 
+// Custom sorting logic for the Review Date column
+function custom_orderby($query) {
+    if (!is_admin() || !$query->is_main_query()) {
+        return;
+    }
+
+    if ($query->get('orderby') == 'publish_date') {
+        // Modify the query to sort by your custom field (e.g., meta_key)
+        $query->set('meta_key', 'publish_date'); // Replace 'your_meta_key_here' with your actual meta key for the review date
+        $query->set('orderby', 'meta_value'); // Change 'meta_value' to 'meta_value_num' if your date is stored as a timestamp
+       
+    }
+}
+add_action('pre_get_posts', 'custom_orderby');
 
 ?>
