@@ -5,17 +5,19 @@ jQuery(document).ready(function ($) {
     newestOnTop: false,
     progressBar: true,
     positionClass: "toast-bottom-right",
-    preventDuplicates: true,
+    preventDuplicates: false,
     onclick: null,
-    showDuration: "1000",
-    hideDuration: "1000",
-    timeOut: "3500",
-    extendedTimeOut: "1000",
+    showDuration: "500",
+    hideDuration: "500",
+    timeOut: "2500",
+    extendedTimeOut: "500",
     showEasing: "swing",
     hideEasing: "linear",
     showMethod: "slideDown",
     hideMethod: "slideUp",
   };
+  
 
 });
+
 

@@ -1,24 +1,19 @@
 <?php
-// error_reporting(0);
-
 // Add a setting page
-function our_google_reviews_add_menu_page()
-{
+function our_google_reviews_add_menu_page() {
     add_menu_page(
         'Our Google Reviews',
         'Review Settings',
         'manage_options',
         'awesome-google-review',
         'our_google_reviews_callback',
-        'dashicons-google',
-        null,
+        'dashicons-google'
     );
 }
 add_action('admin_menu', 'our_google_reviews_add_menu_page');
 
 // Setting Link at plugin
-function add_settings_link($links, $file)
-{
+function add_settings_link($links, $file) {
     if (strpos($file, 'awesome-google-review/awesome-google-review.php') !== false) {
         $settings_link = '<a href="' . esc_url(get_admin_url(null, 'admin.php?page=awesome-google-review')) . '">' . __('Review Settings') . '</a>';
         array_unshift($links, $settings_link);
@@ -27,34 +22,32 @@ function add_settings_link($links, $file)
 }
 add_filter('plugin_action_links', 'add_settings_link', 10, 2);
 
-
 // Create post type on activation
 register_activation_hook(__FILE__, 'awesome_google_review_plugin_activate');
 
-function awesome_google_review_plugin_activate()
-{
+function awesome_google_review_plugin_activate() {
     add_agr_google_review_post_type();
     flush_rewrite_rules();
 }
 
-//Hide post type on deactivation
+// Hide post type on deactivation
 register_deactivation_hook(__FILE__, 'awesome_google_review_plugin_deactivate');
-function awesome_google_review_plugin_deactivate()
-{
+function awesome_google_review_plugin_deactivate() {
     unregister_post_type('agr_google_review');
     flush_rewrite_rules();
 }
 
-//Remove place_id data on deletion
+// Remove data on deletion
 register_uninstall_hook(__FILE__, 'awesome_google_review_plugin_uninstall');
-function awesome_google_review_plugin_uninstall()
-{
-    delete_option('place_id');
+function awesome_google_review_plugin_uninstall() {
+    delete_option('firm_name');
+    delete_option('review_api_key_status');
+    delete_option('business_valid');
+    delete_option('review_api_key');
 }
 
 add_action('init', 'add_agr_google_review_post_type');
-function add_agr_google_review_post_type()
-{
+function add_agr_google_review_post_type() {
     $labels = array(
         'name'               => _x('Google Reviews', 'post type general name', 'awesome-google-review'),
         'singular_name'      => _x('Google Review', 'post type singular name', 'awesome-google-review'),
@@ -82,7 +75,7 @@ function add_agr_google_review_post_type()
         'rewrite'            => array('slug' => 'google-reviews'),
         'capability_type'    => 'post',
         'has_archive'        => true,
-        'menu_icon' => 'dashicons-google',
+        'menu_icon'          => 'dashicons-google',
         'hierarchical'       => false,
         'menu_position'      => null,
         'supports'           => array(''),
@@ -93,8 +86,7 @@ function add_agr_google_review_post_type()
     add_action('add_meta_boxes', 'add_agr_google_review_meta_box');
 }
 
-function add_agr_google_review_meta_box()
-{
+function add_agr_google_review_meta_box() {
     add_meta_box(
         'agr_google_review_meta_box',
         __('Google Review Details', 'awesome-google-review'),
@@ -105,27 +97,23 @@ function add_agr_google_review_meta_box()
     );
 }
 
-function render_agr_google_review_meta_box($post)
-{
+function render_agr_google_review_meta_box($post) {
     // Retrieve the current values of meta fields
-    $place_id = 'ChIJCQMc8zh-woARPw85TTugs1w';
     $id = get_post_meta($post->ID, 'post_review_id', true);
     $reviewer_name = get_post_meta($post->ID, 'reviewer_name', true);
     $reviewer_picture_url = get_post_meta($post->ID, 'reviewer_picture_url', true);
     $url = get_post_meta($post->ID, 'url', true);
     $rating = get_post_meta($post->ID, 'rating', true);
     $text = get_post_meta($post->ID, 'text', true);
-    $publish_date = date_i18n('d-M-Y', get_post_meta($post->ID, 'publish_date', true));
-
+    $publish_date = get_post_meta($post->ID, 'publish_date', true);
 
     // Output the second table for Place ID on the right side
     echo '<table class="form-table" style="border-bottom:1px solid #c3c4c7">';
-    echo '<tr><th>' . __('Place ID:', 'awesome-google-review') . '</th><td><input style="background:#ccc;" readonly type="text" id="place_id" name="place_id" value="' . esc_attr($place_id) . '" /></td></tr>';
     echo '<tr><th>' . __('ID:', 'awesome-google-review') . '</th><td><input style="background:#ccc;" readonly type="text" id="post_review_id" name="post_review_id" value="' . esc_attr($id) . '" /></td></tr>';
     echo '</table>';
 
     // Output a table
-    echo '<table class="form-table" style="width:auto">';    
+    echo '<table class="form-table" style="width:auto">';
     echo '<tr><th>' . __('Reviewer Name:', 'awesome-google-review') . '</th><td><input readonly type="text" id="reviewer_name" name="reviewer_name" value="' . esc_attr($reviewer_name) . '" /></td></tr>';
     echo '<tr><th>' . __('Reviewer Picture URL:', 'awesome-google-review') . '</th><td><input readonly type="text" id="reviewer_picture_url" name="reviewer_picture_url" value="' . esc_url($reviewer_picture_url) . '" /></td></tr>';
     echo '<tr><th>' . __('Read More URL:', 'awesome-google-review') . '</th><td><input readonly type="text" id="url" name="url" value="' . esc_url($url) . '" /></td></tr>';
@@ -135,63 +123,63 @@ function render_agr_google_review_meta_box($post)
     echo '</table>';
 }
 
-function shortcode_display(){
-    
-}
+function shortcode_display() {}
 
-function our_google_reviews_callback()
-{
-    // $get_place_id = trim(get_option('place_id'));
-    $get_place_id = get_option('place_id');
+function our_google_reviews_callback() {
+    $firm_name = get_option('firm_name');
+    $review_api_key = get_option('review_api_key');
 ?>
+    <!-- Page Effects -->
+    <div class="confetti-land">
+        <?php for ($i = 0; $i < 100; $i++) : ?>
+            <div class="confetti"></div>
+        <?php endfor; ?>
+    </div>
 
-    <div class="seo-plugin-data-info container">
+    <div class="seo-plugin-data-info container api_key_setting_form">
         <div class="inner-content-data">
-            <h2 class="boxtitle ">Google Reviews Setting</h2>
-            <form id="agr_ajax_form" method="post" autocomplete="off">
-                <?php wp_nonce_field('awesome_google_review', 'awesome_google_review_nonce'); ?>
+            <h2 class="boxtitle ">API Key Setting</h2>
+            <form id="api_key_setting_form" method="post" autocomplete="off">
+                <?php wp_nonce_field('review_api_key', 'review_api_key_nonce'); ?>
                 <div class="field_container">
                     <div class="input-field">
-                        <input type="text" id="place_id" required  spellcheck="false" value="<?php echo ($get_place_id ? $get_place_id : ''); ?>">
-                        <label>Place ID</label>
+                        <input type="text" id="review_api_key" required spellcheck="false" value="<?php echo esc_attr($review_api_key ? $review_api_key : ''); ?>">
+                        <label>API Key</label>
                         <span class="correct-sign">✓</span>
                         <span class="wrong-sign">×</span>
                     </div>
-                    <div class="select-field">
-                        <select name="get_review_count" id="get_review_count" class="get_review_count">
-                            <option value="0" <?php selected(get_option('get_review_count'), '0'); ?>>0</option>
-                            <option value="5" <?php selected(get_option('get_review_count'), '5'); ?>>5</option>
-                            <option value="10" <?php selected(get_option('get_review_count'), '10'); ?>>10</option>
-                            <option value="20" <?php selected(get_option('get_review_count'), '20'); ?>>20</option>
-                            <option value="30" <?php selected(get_option('get_review_count'), '30'); ?>>30</option>
-                            <option value="40" <?php selected(get_option('get_review_count'), '40'); ?>>40</option>
-                            <option value="60" <?php selected(get_option('get_review_count'), '60'); ?>>60</option>
-                            <option value="80" <?php selected(get_option('get_review_count'), '80'); ?>>80</option>
-                            <option value="100" <?php selected(get_option('get_review_count'), '100'); ?>>100</option>
-                            <option value="120" <?php selected(get_option('get_review_count'), '120'); ?>>120</option>
-                            <option value="150" <?php selected(get_option('get_review_count'), '150'); ?>>150</option>
-                            <option value="180" <?php selected(get_option('get_review_count'), '180'); ?>>180</option>
-                            <option value="200" <?php selected(get_option('get_review_count'), '200'); ?>>200</option>
-                            <option value="250" <?php selected(get_option('get_review_count'), '250'); ?>>250</option>
-                            <option value="300" <?php selected(get_option('get_review_count'), '300'); ?>>300</option>
-                            <option value="400" <?php selected(get_option('get_review_count'), '400'); ?>>400</option>
-                            <option value="500" <?php selected(get_option('get_review_count'), '500'); ?>>500</option>
-                        </select>
-                    </div>
                 </div>
-
-                <button type="submit" class="submit_btn"><span class="label">Submit</span></button>
+                <div class="twoToneCenter">
+                    <button type="submit" class="submit_btn save btn-process">Save</button>
+                </div>
             </form>
         </div>
     </div>
-    
+
+    <div class="seo-plugin-data-info container google_review_upload_form cont hidden">
+        <div class="inner-content-data">
+            <h2 class="boxtitle ">Google Reviews Upload</h2>
+            <form id="google_review_upload_form" method="post" autocomplete="off">
+                <?php wp_nonce_field('get_set_trigger', 'get_set_trigger_nonce'); ?>
+                <div class="field_container">
+                    <div class="input-field">
+                        <input type="text" id="firm_name" spellcheck="false" value="<?php echo esc_attr($firm_name ? $firm_name : ''); ?>">
+                        <label>Firm Name</label>
+                        <span class="correct-sign">✓</span>
+                        <span class="wrong-sign">×</span>
+                    </div>
+                </div>
+                <div class="submit_btn_setget twoToneCenter">
+                    <button type="submit" class="submit_btn get_set btn-process"><span class="label">GET & SET</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
 <?php
 }
 
-
 // Add custom columns to post type
-function custom_add_custom_columns($columns)
-{
+function custom_add_custom_columns($columns) {
     $new_columns = array();
 
     foreach ($columns as $key => $value) {
@@ -207,10 +195,8 @@ function custom_add_custom_columns($columns)
 }
 add_filter('manage_agr_google_review_posts_columns', 'custom_add_custom_columns');
 
-
 // Display custom meta values in the custom columns
-function custom_display_custom_columns($column, $post_id)
-{
+function custom_display_custom_columns($column, $post_id) {
     switch ($column) {
         case 'rating':
             $rating_count = get_post_meta($post_id, 'rating', true);
@@ -234,16 +220,14 @@ function custom_display_custom_columns($column, $post_id)
 
         case 'publish_date':
             $publish_date = get_post_meta($post_id, 'publish_date', true);
-            $formatted_date = date_i18n('d-M-Y', $publish_date);
-            echo '<div>' . esc_html($formatted_date) . '</div>';
+            echo '<div>' . esc_html($publish_date) . '</div>';
             break;
     }
 }
 add_action('manage_agr_google_review_posts_custom_column', 'custom_display_custom_columns', 16, 2);
 
-
 // Make the Review Date column sortable
-function custom_sortable_columns($columns) {    
+function custom_sortable_columns($columns) {
     $columns['publish_date'] = 'publish_date'; // 'publish_date' is the ID of the column
     return $columns;
 }
@@ -259,9 +243,7 @@ function custom_orderby($query) {
         // Modify the query to sort by your custom field (e.g., meta_key)
         $query->set('meta_key', 'publish_date'); // Replace 'your_meta_key_here' with your actual meta key for the review date
         $query->set('orderby', 'meta_value'); // Change 'meta_value' to 'meta_value_num' if your date is stored as a timestamp
-       
+
     }
 }
 add_action('pre_get_posts', 'custom_orderby');
-
-?>
